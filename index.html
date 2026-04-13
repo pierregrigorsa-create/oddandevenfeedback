@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miss Numby's Odd &amp; Even Numbers</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--purple:#7c3aed;--purple-light:#a78bfa;--purple-dark:#5b21b6;--pink:#ec4899;--pink-light:#f9a8d4;--yellow:#fbbf24;--yellow-light:#fef3c7;--green:#10b981;--blue:#3b82f6;--orange:#f97316;--red:#ef4444;--white:#ffffff;--text-dark:#1e1b4b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#1e1b4b,#312e81,#4c1d95);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:16px}
+#app{width:100%;max-width:520px;background:linear-gradient(180deg,#faf5ff,#fce7f3,#fef3c7);border-radius:28px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4);position:relative}
+
+#password-screen{padding:40px 28px;text-align:center;background:linear-gradient(135deg,#faf5ff,#ede9fe)}
+#password-screen h1{font-family:'Fredoka One',cursive;font-size:1.7em;color:var(--purple);margin-bottom:6px}
+#password-screen p{color:#6b7280;font-weight:600;margin-bottom:22px}
+.pw-logo{font-size:3.5em;margin-bottom:14px}
+#pw-input{width:100%;padding:14px 18px;border:3px solid var(--purple-light);border-radius:16px;font-family:'Nunito',sans-serif;font-size:1.1em;text-align:center;outline:none;letter-spacing:3px;font-weight:800}
+#pw-input:focus{border-color:var(--purple);box-shadow:0 0 0 4px rgba(124,58,237,0.15)}
+.pw-btn-main{margin-top:16px;padding:14px 48px;background:linear-gradient(135deg,var(--purple),var(--pink));color:white;border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:1.15em;cursor:pointer;box-shadow:0 6px 20px rgba(124,58,237,0.35);transition:transform 0.15s}
+.pw-btn-main:hover{transform:scale(1.05)}
+#pw-error{color:var(--red);font-weight:700;margin-top:12px;display:none}
+
+/* SOUND ENABLE SCREEN */
+#sound-screen{display:none;padding:40px 28px;text-align:center;background:linear-gradient(135deg,#faf5ff,#ede9fe)}
+#sound-screen h2{font-family:'Fredoka One',cursive;font-size:1.5em;color:var(--purple);margin-bottom:12px}
+#sound-screen p{color:#6b7280;font-weight:600;margin-bottom:20px;line-height:1.6}
+.sound-btn{padding:18px 48px;border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:1.3em;cursor:pointer;margin:8px;transition:transform 0.15s;display:block;width:80%;margin:10px auto}
+.sound-btn:hover{transform:scale(1.05)}
+.sound-on{background:linear-gradient(135deg,var(--green),#059669);color:white;box-shadow:0 6px 20px rgba(16,185,129,0.4)}
+.sound-off{background:var(--white);color:var(--purple);border:2px solid var(--purple-light)}
+
+#stage{display:none;min-height:360px;padding:22px 20px;position:relative;overflow:hidden;background:linear-gradient(180deg,#ede9fe,#fce7f3,#fef3c7)}
+#stage::before{content:'✨ ⭐ 🌟 ✨ ⭐';position:absolute;top:8px;left:0;right:0;text-align:center;font-size:0.8em;opacity:0.3;pointer-events:none}
+
+.numby-container{text-align:center;margin-bottom:14px}
+.numby-avatar{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--pink-light),var(--purple-light));border:4px solid var(--purple);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(124,58,237,0.25);overflow:hidden}
+.numby-avatar.speaking{animation:speakPulse 0.8s ease infinite}
+@keyframes speakPulse{0%,100%{box-shadow:0 6px 20px rgba(124,58,237,0.25)}50%{box-shadow:0 6px 30px rgba(236,72,153,0.5),0 0 0 8px rgba(236,72,153,0.15)}}
+.numby-name{font-family:'Fredoka One',cursive;color:var(--purple);font-size:1.1em;margin-top:6px}
+
+#speech-bubble{background:var(--white);border-radius:20px;padding:18px 20px;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);border:3px solid var(--purple-light);font-size:1.05em;font-weight:600;color:var(--text-dark);line-height:1.6;text-align:center;min-height:60px;position:relative}
+#speech-bubble::before{content:'';position:absolute;top:-12px;left:50%;transform:translateX(-50%);border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:12px solid var(--purple-light)}
+#speech-bubble::after{content:'';position:absolute;top:-8px;left:50%;transform:translateX(-50%);border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:10px solid var(--white)}
+#volume-status{text-align:center;font-size:0.8em;color:var(--purple);font-weight:700;margin-bottom:8px}
+
+#children-area{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:16px auto;max-width:400px}
+.child-figure{display:flex;flex-direction:column;align-items:center;transition:all 0.4s ease}
+.child-circle{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8em;border:3px solid transparent;box-shadow:0 3px 10px rgba(0,0,0,0.1)}
+.child-name{font-size:0.7em;font-weight:800;color:var(--text-dark);margin-top:4px}
+.group-box{display:inline-flex;gap:6px;padding:8px 12px;border:4px dashed var(--green);border-radius:20px;background:rgba(16,185,129,0.08);margin:6px}
+.group-box.leftover{border-color:var(--red);background:rgba(239,68,68,0.08)}
+
+#answer-area{text-align:center;margin-top:16px}
+.answer-btn{padding:14px 36px;margin:0 8px;border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:1.2em;cursor:pointer;color:white;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.15)}
+.answer-btn:hover{transform:scale(1.08)}
+.answer-btn.odd-btn{background:linear-gradient(135deg,var(--orange),var(--red))}
+.answer-btn.even-btn{background:linear-gradient(135deg,var(--blue),var(--purple))}
+.answer-btn.correct-flash{animation:correctPulse 0.6s ease}
+.answer-btn.wrong-flash{animation:wrongShake 0.5s ease}
+@keyframes correctPulse{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+
+#feedback-msg{text-align:center;margin-top:12px;font-family:'Fredoka One',cursive;font-size:1.2em;min-height:30px}
+.feedback-correct{color:var(--green)}.feedback-wrong{color:var(--red)}
+.big-number{font-family:'Fredoka One',cursive;font-size:3.5em;color:var(--purple);text-align:center;text-shadow:3px 3px 0 rgba(124,58,237,0.15);margin:8px 0}
+
+#controls{display:none;padding:14px 20px;background:linear-gradient(135deg,#ede9fe,#e0e7ff);border-top:2px solid rgba(124,58,237,0.15);text-align:center}
+.ctrl-btn{padding:10px 24px;border:none;border-radius:50px;font-family:'Fredoka One',cursive;font-size:0.95em;cursor:pointer;margin:0 4px;transition:all 0.15s;text-decoration:none;display:inline-block}
+.ctrl-btn.primary{background:linear-gradient(135deg,var(--purple),var(--pink));color:white;box-shadow:0 4px 14px rgba(124,58,237,0.3)}
+.ctrl-btn.secondary{background:var(--white);color:var(--purple);border:2px solid var(--purple-light)}
+.ctrl-btn:hover{transform:scale(1.05)}
+
+#subtitle-bar{display:none;padding:10px 20px;background:rgba(30,27,75,0.85);color:white;font-weight:700;font-size:0.9em;text-align:center}
+#progress-bar{height:6px;background:#e5e7eb}
+#progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--purple),var(--pink));transition:width 0.5s ease;border-radius:0 3px 3px 0}
+#score-display{text-align:center;margin:8px 0;font-family:'Fredoka One',cursive;color:var(--purple);font-size:0.95em}
+
+#praise-section{display:none;padding:30px 24px;text-align:center;background:linear-gradient(180deg,#fef3c7,#fce7f3)}
+#praise-section h2{font-family:'Fredoka One',cursive;font-size:1.8em;color:var(--purple);margin-bottom:10px}
+.score-final{font-family:'Fredoka One',cursive;font-size:2.2em;color:var(--pink);margin:12px 0}
+.stars{font-size:2.5em;margin:10px 0}
+#parent-note{background:linear-gradient(135deg,#fef3c7,#fff7ed);border-radius:18px;padding:20px;margin:16px 0;border:2px solid var(--yellow);font-size:0.95em;color:var(--text-dark);line-height:1.6;text-align:left}
+/* Feedback link styled as button */
+.feedback-link{display:inline-block;padding:13px 32px;background:linear-gradient(135deg,var(--purple),var(--pink));color:white!important;border-radius:50px;font-family:'Fredoka One',cursive;font-size:17px;text-decoration:none;box-shadow:0 6px 20px rgba(124,58,237,0.35);margin-top:12px;transition:transform 0.15s}
+.feedback-link:hover{transform:scale(1.05)}
+
+.skin-1{background:#fdd8b5}.skin-2{background:#d4a373}.skin-3{background:#8b5e3c}
+.skin-4{background:#f5cba7}.skin-5{background:#c68642}.skin-6{background:#ffdbac}
+@media(max-width:400px){#stage{padding:16px 14px}.child-circle{width:46px;height:46px;font-size:1.5em}.big-number{font-size:2.8em}.answer-btn{padding:12px 28px;font-size:1.05em}}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- PASSWORD -->
+  <div id="password-screen">
+    <div class="pw-logo">🔢 👩‍🏫</div>
+    <h1>Miss Numby's Lesson</h1>
+    <p>Odd &amp; Even Numbers</p>
+    <p style="font-size:0.85em;color:#9ca3af;">Enter this month's password to begin:</p>
+    <input type="text" id="pw-input" maxlength="10" placeholder="PASSWORD" autocomplete="off">
+    <br><button class="pw-btn-main" onclick="checkPassword()">🔓 Unlock Lesson</button>
+    <div id="pw-error">❌ That's not right. Ask your teacher for this month's password.</div>
+  </div>
+
+  <!-- SOUND ENABLE (shown after password) -->
+  <div id="sound-screen">
+    <h2>🔊 Turn on Sound?</h2>
+    <p>Miss Numby can <strong>read the lesson out loud</strong> to your child.<br>Make sure your volume is turned up!</p>
+    <button class="sound-btn sound-on" onclick="enableSound(true)">🔊 Yes — Sound ON</button>
+    <button class="sound-btn sound-off" onclick="enableSound(false)">🔇 No — Read Only</button>
+  </div>
+
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+
+  <!-- STAGE -->
+  <div id="stage">
+    <div class="numby-container">
+      <div class="numby-avatar" id="numby-avatar">
+        <svg width="90" height="90" viewBox="0 0 90 90">
+          <ellipse cx="45" cy="38" rx="34" ry="36" fill="#1a1a2e"/>
+          <path d="M14 42 Q10 65 18 85" stroke="#1a1a2e" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <path d="M76 42 Q80 65 72 85" stroke="#1a1a2e" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <ellipse cx="45" cy="42" rx="24" ry="26" fill="#fdd8b5"/>
+          <ellipse cx="37" cy="39" rx="3.5" ry="4" fill="#1a1a2e"/>
+          <ellipse cx="53" cy="39" rx="3.5" ry="4" fill="#1a1a2e"/>
+          <circle cx="38.5" cy="38" r="1.2" fill="white"/>
+          <circle cx="54.5" cy="38" r="1.2" fill="white"/>
+          <path d="M32 33 Q37 30 42 33" stroke="#1a1a2e" stroke-width="1.5" fill="none"/>
+          <path d="M48 33 Q53 30 58 33" stroke="#1a1a2e" stroke-width="1.5" fill="none"/>
+          <path d="M36 50 Q45 58 54 50" stroke="#e63946" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="30" cy="48" r="4" fill="#f9a8d4" opacity="0.5"/>
+          <circle cx="60" cy="48" r="4" fill="#f9a8d4" opacity="0.5"/>
+          <path d="M20 30 Q25 15 45 14 Q65 15 70 30 Q60 22 45 20 Q30 22 20 30Z" fill="#1a1a2e"/>
+          <circle cx="68" cy="30" r="5" fill="#ec4899"/>
+          <circle cx="68" cy="30" r="2.5" fill="#fbbf24"/>
+        </svg>
+      </div>
+      <div class="numby-name">Miss Numby ✨</div>
+    </div>
+    <div id="volume-status"></div>
+    <div id="speech-bubble">Press <strong>▶ Play</strong> to start the lesson!</div>
+    <div id="children-area"></div>
+    <div id="number-display"></div>
+    <div id="answer-area"></div>
+    <div id="feedback-msg"></div>
+    <div id="score-display"></div>
+  </div>
+
+  <div id="subtitle-bar">Press Play to start!</div>
+  <div id="controls">
+    <button class="ctrl-btn primary" id="play-btn" onclick="togglePlay()">▶ Play</button>
+  </div>
+
+  <!-- PRAISE / END -->
+  <div id="praise-section">
+    <h2>🎉 Amazing Work! 🎉</h2>
+    <div class="stars">⭐ 🌟 ⭐ 🌟 ⭐</div>
+    <div class="score-final" id="final-score"></div>
+    <p style="font-size:1.05em;color:#6b21a8;font-weight:700;margin:12px 0;">You now know about odd and even numbers! 🔢</p>
+    <div id="parent-note">
+      <strong>📋 Dear Parent / Guardian,</strong><br><br>
+      Wonderful work supporting your child today! Please practise odd and even numbers regularly until your child can identify them <strong>without</strong> making groups of two.<br><br>
+      <em>Tip: Use everyday objects like socks, shoes, or sweets — ask your child to make pairs and see if there is one left over!</em><br><br>
+      <strong>Please complete the feedback form below and send it to your child's teacher. 📩</strong>
+    </div>
+    <a class="feedback-link" href="https://docs.google.com/forms/d/e/1FAIpQLSemC5qB2ZsXff2tgfoZMYzE0MfcZwiUQNfiY0gveCGDHvD_RA/viewform" target="_blank" rel="noopener">📝 Complete Feedback Form</a>
+    <br><br>
+    <button class="ctrl-btn secondary" onclick="restartLesson()" style="margin-top:10px;">🔄 Restart Lesson</button>
+  </div>
+</div>
+
+<script>
+// ══ PASSWORD ══
+function checkPassword(){
+  var input=document.getElementById('pw-input').value.trim().toUpperCase();
+  var m=new Date().getMonth()+1, mm=m<10?'0'+m:''+m;
+  if(input==='BPOE'+mm){
+    document.getElementById('password-screen').style.display='none';
+    document.getElementById('sound-screen').style.display='block';
+  } else {
+    document.getElementById('pw-error').style.display='block';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown',function(e){if(e.key==='Enter')checkPassword();});
+
+// ══ SOUND ENABLE ══
+var soundEnabled=false;
+var synth=window.speechSynthesis||null;
+var selectedVoice=null;
+
+function enableSound(on){
+  soundEnabled=on;
+  document.getElementById('sound-screen').style.display='none';
+  document.getElementById('stage').style.display='block';
+  document.getElementById('controls').style.display='block';
+  document.getElementById('subtitle-bar').style.display='block';
+
+  if(on && synth){
+    // This tap counts as user gesture — speech will now be allowed
+    pickVoice();
+    // Also try a silent utterance to unlock audio on iOS/Safari
+    var unlock=new SpeechSynthesisUtterance('');
+    unlock.volume=0;
+    synth.speak(unlock);
+    document.getElementById('volume-status').innerHTML='🔊 Sound ON — volume up!';
+  } else if(on && !synth){
+    document.getElementById('volume-status').innerHTML='🔇 Sorry — your browser does not support speech. Read the text on screen.';
+    soundEnabled=false;
+  } else {
+    document.getElementById('volume-status').innerHTML='🔇 Sound off — read the text on screen.';
+  }
+}
+
+function pickVoice(){
+  if(!synth)return;
+  var voices=synth.getVoices();
+  if(!voices||!voices.length){
+    // Voices not loaded yet — try again when they load
+    synth.onvoiceschanged=function(){pickVoice();};
+    return;
+  }
+  var preferred=['Google UK English Female','Google US English','Samantha','Karen','Moira','Fiona','Victoria','Zira','Microsoft Zira','Microsoft Hazel','Tessa'];
+  for(var p=0;p<preferred.length;p++){
+    for(var v=0;v<voices.length;v++){
+      if(voices[v].name.indexOf(preferred[p])!==-1){selectedVoice=voices[v];return;}
+    }
+  }
+  // Fallback: any English voice
+  for(var i=0;i<voices.length;i++){
+    if(voices[i].lang&&(voices[i].lang.indexOf('en-')===0||voices[i].lang==='en')){selectedVoice=voices[i];return;}
+  }
+  selectedVoice=voices[0];
+}
+
+function speak(text,onEnd){
+  if(!soundEnabled||!synth){if(onEnd)onEnd();return;}
+  synth.cancel();
+  pickVoice(); // re-check voices in case they loaded late
+  var clean=text.replace(/<[^>]*>/g,'').replace(/[^\x20-\x7E.,!?;:'"()\-]/g,' ').replace(/\s+/g,' ').trim();
+  if(!clean){if(onEnd)onEnd();return;}
+  var utter=new SpeechSynthesisUtterance(clean);
+  if(selectedVoice)utter.voice=selectedVoice;
+  utter.rate=0.85; utter.pitch=1.15; utter.volume=1.0;
+  var avatar=document.getElementById('numby-avatar');
+  avatar.classList.add('speaking');
+  utter.onend=function(){avatar.classList.remove('speaking');if(onEnd)onEnd();};
+  utter.onerror=function(){avatar.classList.remove('speaking');if(onEnd)onEnd();};
+  synth.speak(utter);
+}
+
+function stopSpeech(){if(synth)synth.cancel();var a=document.getElementById('numby-avatar');if(a)a.classList.remove('speaking');}
+
+// ══ CHILDREN DATA ══
+var allChildren=[
+  {name:'Thandi',emoji:'👧🏿',skin:'skin-3'},{name:'Liam',emoji:'👦🏻',skin:'skin-1'},
+  {name:'Amara',emoji:'👧🏾',skin:'skin-5'},{name:'Noah',emoji:'👦🏽',skin:'skin-2'},
+  {name:'Mei',emoji:'👧🏻',skin:'skin-6'},{name:'Sipho',emoji:'👦🏿',skin:'skin-3'},
+  {name:'Zara',emoji:'👧🏽',skin:'skin-4'},{name:'James',emoji:'👦🏼',skin:'skin-1'},
+  {name:'Anika',emoji:'👧🏾',skin:'skin-2'},{name:'Ravi',emoji:'👦🏽',skin:'skin-5'}
+];
+
+// ══ SCENES ══
+var currentScene=-1,isPlaying=false,playTimer=null,score=0,totalQuestions=7;
+var practiceNumbers=[5,2,7,8,1,9,10],practiceIndex=0,waitingForAnswer=false;
+
+var scenes=[
+  {speech:"Hello boys and girls! 👋 I'm Miss Numby! Today I'm going to teach you about <strong>odd</strong> and <strong>even</strong> numbers! Are you ready? Let's go! 🎉",
+   voice:"Hello boys and girls! I'm Miss Numby! Today I'm going to teach you about odd and even numbers! Are you ready? Let's go!",
+   subtitle:"Miss Numby introduces the lesson",action:function(){clearStage();}},
+  {speech:"We are going to use numbers from <strong>1 to 10</strong>. I'm going to show you some friends, and we will put them in <strong>groups of 2</strong>. Let's see what happens! 🤔",
+   voice:"We are going to use numbers from 1 to 10. I'm going to show you some friends, and we will put them in groups of 2. Let's see what happens!",
+   subtitle:"We'll group friends in pairs of 2",action:function(){clearStage();}},
+  {speech:"Let's look at <strong>6 friends</strong>! Here they are! 🥳",
+   voice:"Let's look at 6 friends! Here they are!",
+   subtitle:"Example: 6 friends",action:function(){clearStage();showChildren(6);showBigNumber(6);}},
+  {speech:"Two-two friends take hands! Let's make <strong>groups of 2</strong>... There are <strong>3 groups</strong> and every child has a partner! ✅",
+   voice:"Two two friends take hands! Let's make groups of 2. There are 3 groups, and every child has a partner!",
+   subtitle:"6 = 3 groups of 2, everyone has a partner",action:function(){clearStage();showGrouped(6);showBigNumber(6);}},
+  {speech:"Every child has a partner. So <strong>6 is an EVEN number!</strong> 🎉",
+   voice:"Every child has a partner. So, 6 is an even number! Wonderful!",
+   subtitle:"6 is an EVEN number!",action:function(){clearStage();showGrouped(6);showResult(6,'even');}},
+  {speech:"Now let's look at <strong>4 friends</strong>! 👀",
+   voice:"Now let's look at 4 friends!",
+   subtitle:"Example: 4 friends",action:function(){clearStage();showChildren(4);showBigNumber(4);}},
+  {speech:"Two-two friends take hands! There are <strong>2 groups</strong> and each child has a partner! ✅",
+   voice:"Two two friends take hands! There are 2 groups, and each child has a partner!",
+   subtitle:"4 = 2 groups of 2, everyone has a partner",action:function(){clearStage();showGrouped(4);showBigNumber(4);}},
+  {speech:"Every child has a partner. So <strong>4 is an EVEN number!</strong> 🎉",
+   voice:"Every child has a partner. So, 4 is an even number!",
+   subtitle:"4 is an EVEN number!",action:function(){clearStage();showGrouped(4);showResult(4,'even');}},
+  {speech:"Now let's look at <strong>3 friends</strong>! 🤗",
+   voice:"Now let's look at 3 friends!",
+   subtitle:"Example: 3 friends",action:function(){clearStage();showChildren(3);showBigNumber(3);}},
+  {speech:"Two-two friends take hands... Wait! Here is something <strong>odd</strong>... 😮 One child does <strong>NOT</strong> have a partner!",
+   voice:"Two two friends take hands. Wait! Here is something odd. One child does not have a partner!",
+   subtitle:"3 = 1 group of 2... but 1 child is left over!",action:function(){clearStage();showGrouped(3);showBigNumber(3);}},
+  {speech:"One child is left without a partner. That's odd! So <strong>3 is an ODD number!</strong> 🔴",
+   voice:"One child is left without a partner. That's odd! So, 3 is an odd number!",
+   subtitle:"3 is an ODD number!",action:function(){clearStage();showGrouped(3);showResult(3,'odd');}},
+  {speech:"Now it's <strong>YOUR turn!</strong> 💪 I will show you some friends. Make groups of 2 in your head, then tell me: is it <strong>odd</strong> or <strong>even</strong>?",
+   voice:"Now it's your turn! I will show you some friends. Make groups of 2 in your head, then tell me, is it odd, or even?",
+   subtitle:"Your turn! Is it odd or even?",action:function(){clearStage();practiceIndex=0;score=0;updateScore();}},
+  {speech:"",voice:"",subtitle:"",action:function(){startPractice();}}
+];
+var totalScenes=scenes.length;
+
+function clearStage(){document.getElementById('children-area').innerHTML='';document.getElementById('number-display').innerHTML='';document.getElementById('answer-area').innerHTML='';document.getElementById('feedback-msg').innerHTML='';waitingForAnswer=false;}
+function showBigNumber(n){document.getElementById('number-display').innerHTML='<div class="big-number">'+n+'</div>';}
+function showChildren(count){
+  var a=document.getElementById('children-area');a.innerHTML='';
+  for(var i=0;i<count;i++){var c=allChildren[i],f=document.createElement('div');f.className='child-figure';f.innerHTML='<div class="child-circle '+c.skin+'">'+c.emoji+'</div><div class="child-name">'+c.name+'</div>';a.appendChild(f);}
+}
+function showGrouped(count){
+  var a=document.getElementById('children-area');a.innerHTML='';var pairs=Math.floor(count/2),lo=count%2,idx=0;
+  for(var g=0;g<pairs;g++){var box=document.createElement('div');box.className='group-box';for(var p=0;p<2;p++){var c=allChildren[idx++],f=document.createElement('div');f.className='child-figure';f.innerHTML='<div class="child-circle '+c.skin+'">'+c.emoji+'</div><div class="child-name">'+c.name+'</div>';box.appendChild(f);}a.appendChild(box);}
+  if(lo>0){var lb=document.createElement('div');lb.className='group-box leftover';var c2=allChildren[idx],f2=document.createElement('div');f2.className='child-figure';f2.innerHTML='<div class="child-circle '+c2.skin+'">'+c2.emoji+'</div><div class="child-name">'+c2.name+'</div>';lb.appendChild(f2);var sad=document.createElement('div');sad.style.cssText='display:flex;align-items:center;font-size:1.5em;';sad.textContent='😢';lb.appendChild(sad);a.appendChild(lb);}
+}
+function showResult(n,type){
+  var d=document.getElementById('number-display'),color=type==='even'?'var(--blue)':'var(--orange)',label=type==='even'?'EVEN ✅':'ODD 🔴';
+  d.innerHTML='<div class="big-number" style="color:'+color+'">'+n+'</div><div style="font-family:Fredoka One,cursive;font-size:1.5em;color:'+color+';text-align:center;">'+label+'</div>';
+}
+
+// ══ PRACTICE ══
+var practiceTimer=null;
+
+function startPractice(){
+  if(practiceIndex>=practiceNumbers.length){showPraise();return;}
+  if(practiceTimer){clearTimeout(practiceTimer);practiceTimer=null;}
+  var num=practiceNumbers[practiceIndex];clearStage();showChildren(num);showBigNumber(num);
+  var vt="Look at "+num+" friend"+(num!==1?"s":"")+"! Can you make groups of 2? Is "+num+" odd, or even?";
+  document.getElementById('speech-bubble').innerHTML="Look at <strong>"+num+" friend"+(num!==1?"s":"")+"</strong>! Can you make groups of 2? Is "+num+" <strong>odd</strong> or <strong>even</strong>? 🤔";
+  document.getElementById('subtitle-bar').textContent="Question "+(practiceIndex+1)+" of "+totalQuestions+": Is "+num+" odd or even?";
+  document.getElementById('answer-area').innerHTML='<button class="answer-btn odd-btn" onclick="checkAnswer(\'odd\')">🔴 Odd</button><button class="answer-btn even-btn" onclick="checkAnswer(\'even\')">🔵 Even</button>';
+  waitingForAnswer=true;updateScore();updateProgress();
+  speak(vt);
+}
+function checkAnswer(ans){
+  if(!waitingForAnswer)return;var num=practiceNumbers[practiceIndex],correct=(num%2===0)?'even':'odd',fb=document.getElementById('feedback-msg');
+  if(ans===correct){
+    waitingForAnswer=false;score++;fb.innerHTML='<span class="feedback-correct">🎉 Correct! '+num+' is '+correct+'!</span>';
+    showGrouped(num);showResult(num,correct);updateScore();
+    document.querySelectorAll('.answer-btn').forEach(function(b){if((ans==='odd'&&b.classList.contains('odd-btn'))||(ans==='even'&&b.classList.contains('even-btn')))b.classList.add('correct-flash');b.disabled=true;b.style.opacity='0.7';});
+    // Speak "Correct!" and only advance AFTER speech finishes
+    speak("Correct! "+num+" is "+correct+"! Well done!", function(){
+      practiceTimer=setTimeout(function(){
+        practiceIndex++;
+        if(practiceIndex<practiceNumbers.length) startPractice();
+        else showPraise();
+      }, 800);
+    });
+  } else {
+    fb.innerHTML='<span class="feedback-wrong">❌ Not quite! Try again! 💪</span>';speak("Not quite! Try again!");
+    document.querySelectorAll('.answer-btn').forEach(function(b){if((ans==='odd'&&b.classList.contains('odd-btn'))||(ans==='even'&&b.classList.contains('even-btn'))){b.classList.add('wrong-flash');setTimeout(function(){b.classList.remove('wrong-flash');},500);}});
+  }
+}
+function updateScore(){var s=document.getElementById('score-display');s.innerHTML=(practiceIndex>0||currentScene>=12)?'⭐ Score: '+score+' / '+totalQuestions:'';}
+
+// ══ PRAISE ══
+function showPraise(){
+  if(practiceTimer){clearTimeout(practiceTimer);practiceTimer=null;}
+  stopSpeech();document.getElementById('stage').style.display='none';document.getElementById('controls').style.display='none';
+  document.getElementById('subtitle-bar').style.display='none';document.getElementById('praise-section').style.display='block';
+  document.getElementById('final-score').textContent='⭐ '+score+' / '+totalQuestions;
+  stopAutoplay();updateProgress(100);speak("Amazing work! You now know about odd and even numbers! Well done!");
+}
+
+// ══ PLAYBACK ══
+function goToScene(idx){
+  if(idx<0||idx>=totalScenes)return;stopSpeech();currentScene=idx;var s=scenes[currentScene];
+  if(s.speech)document.getElementById('speech-bubble').innerHTML=s.speech;
+  if(s.subtitle)document.getElementById('subtitle-bar').textContent=s.subtitle;
+  if(s.action)s.action();updateProgress();
+  // For teaching scenes: speak, then auto-advance after speech ends
+  if(s.voice&&currentScene<12){
+    speak(s.voice,function(){
+      if(isPlaying&&!waitingForAnswer){
+        playTimer=setTimeout(function(){
+          if(isPlaying&&!waitingForAnswer) nextScene();
+        },1200);
+      }
+    });
+  }
+  // Scene 12 = practice entry, handled by startPractice
+}
+function nextScene(){
+  if(waitingForAnswer)return;
+  if(playTimer){clearTimeout(playTimer);playTimer=null;}
+  if(currentScene>=totalScenes-1){showPraise();return;}
+  goToScene(currentScene+1);
+}
+function togglePlay(){if(isPlaying)pauseAutoplay();else startAutoplay();}
+function startAutoplay(){
+  isPlaying=true;
+  document.getElementById('play-btn').textContent='⏸ Pause';
+  if(currentScene<0){
+    // First press — start from scene 0
+    nextScene();
+  } else if(currentScene<12){
+    // Resuming in a teaching scene — advance to next scene
+    nextScene();
+  }
+  // If in practice (scene 12+), just set isPlaying=true
+  // The answer buttons handle all progression
+}
+function pauseAutoplay(){
+  isPlaying=false;
+  document.getElementById('play-btn').textContent='▶ Play';
+  if(playTimer){clearTimeout(playTimer);playTimer=null;}
+  stopSpeech();
+}
+function stopAutoplay(){pauseAutoplay();}
+function updateProgress(force){document.getElementById('progress-fill').style.width=(force||Math.round(((currentScene+1)/totalScenes)*100))+'%';}
+
+// ══ RESTART ══
+function restartLesson(){
+  stopSpeech();if(practiceTimer){clearTimeout(practiceTimer);practiceTimer=null;}
+  currentScene=-1;isPlaying=false;playTimer=null;score=0;practiceIndex=0;waitingForAnswer=false;
+  document.getElementById('praise-section').style.display='none';document.getElementById('stage').style.display='block';
+  document.getElementById('controls').style.display='block';document.getElementById('subtitle-bar').style.display='block';
+  document.getElementById('play-btn').textContent='▶ Play';clearStage();
+  document.getElementById('speech-bubble').innerHTML='Press <strong>▶ Play</strong> to start the lesson!';
+  document.getElementById('subtitle-bar').textContent='Press Play to start!';
+  document.getElementById('score-display').innerHTML='';updateProgress(0);
+}
+</script>
+</body>
+</html>
